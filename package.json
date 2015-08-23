@@ -1,0 +1,38 @@
+{
+  "name": "ColJs",
+  "version": "0.0.0",
+  "description": "ColJs",
+  "homepage": "https://github.com/BorisBorshevsky/ColJs",
+  "main": "app.js",
+  "directories": {},
+  "dependencies": {
+    "async": "^1.4.2",
+    "exec": "^0.2.1",
+    "fs": "0.0.2",
+    "glob-all": "^3.0.1",
+    "node": "0.0.0",
+    "node-getopt": "^0.2.3",
+    "path": "^0.11.14",
+    "shelljs": "^0.5.2",
+    "uglify-js": "^2.4.24"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BorisBorshevsky/ColJs.git"
+  },
+  "keywords": [
+    "Collection"
+  ],
+  "author": "Boris Borshevsky",
+  "license": "GNU",
+  "bugs": {
+    "url": "https://github.com/BorisBorshevsky/ColJs/issues"
+  },
+  "engines": {
+    "node": ">=0.10.31"
+  }
+}
