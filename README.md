@@ -133,7 +133,7 @@ Returns a Collection of the unique elements from the original Collection by refe
 
 
 
-<a name="map-api"></a>
+<a name="colmap-api"></a>
 ## ColMap JS
 A collection based on linq interface and map interface
 This is not a real map (not o(1) access), therefor it has all the Col functionality.
@@ -170,3 +170,4 @@ returns a new ColMap with the Projected items as values.
 
 ### Know Issues
 
+unimplemented functions
