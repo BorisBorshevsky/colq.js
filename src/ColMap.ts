@@ -2,6 +2,15 @@
 
 module ColJs {
 
+    interface ColMapBase<E> {
+        get(key:string):E
+        containsKey(key:string):boolean
+        keys():Col<string>
+        values():Col<E>
+        selectValues<R>(fn:(item:Keyed<E>) => R):ColMap<R>
+    }
+
+
     export interface Keyed<V> {
         key:string;
         value:V
