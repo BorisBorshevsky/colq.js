@@ -1,16 +1,16 @@
-module ColJs{
+module ColJs {
 
-export class MapHelper {
-	
-	static toKeyedArray<T>(source:{[index:string]: T}):Keyed<T>[] {
-		var pairs:Keyed<T>[] = [];
-		for (var key in source) {
-			if (source.hasOwnProperty(key)) {
-				pairs.push({key: key, value: source[key]});
+    export class MapHelper {
+
+        static toKeyedArray<T>(source:{[index:string]: T}):Keyed<T>[] {
+            var pairs:Keyed<T>[] = [];
+            for (var key in source) {
+                if (source.hasOwnProperty(key)) {
+                    pairs.push({key: key, value: source[key]});
+                }
             }
+            return pairs;
         }
-        return pairs;
-	}
 
         static ofHashString<T>(source:string, pairSeperator:string, keyValSeperator:string, valueTransform:(value:string) => T):ColMap<T> {
 
@@ -27,7 +27,25 @@ export class MapHelper {
             return new ColMap<T>(hashCol);
         }
 
+        static orderedGroupByString<T>(source:Array<T>, keySelector:(item:T) => string):ColMap<T[]> {
+            var group:{[index:string]: number} = {};
+            var ordered:Keyed<T[]>[] = [];
 
+            for (var i = 0; i < source.length; i++) {
+                var item = source[i];
+                var key = keySelector(item);
+
+                if (!(key in group)) {
+                    ordered.push({key: key, value: []})
+                    group[key] = ordered.length - 1;
+                }
+
+                var index = group[key];
+                ordered[index].value.push(item);
+            }
+
+            return new ColMap<T[]>(ordered);
+        }
     }
-    
-    }
+
+}

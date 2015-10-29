@@ -1,17 +1,17 @@
-(function (root, factory) {
-	if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define([], factory);
-    } else if (typeof module === 'object' && module.exports) {
-        // Node. Does not work with strict CommonJS, but
-        // only CommonJS-like environments that support module.exports,
-        // like Node.
-        module.exports = factory();
-    } else {
-        // Browser globals (root is window)
-        root.ColJs = factory();
-    }
-}(this, function () {
+//(function (root, factory) {
+//	if (typeof define === 'function' && define.amd) {
+//        // AMD. Register as an anonymous module.
+//        define([], factory);
+//    } else if (typeof module === 'object' && module.exports) {
+//        // Node. Does not work with strict CommonJS, but
+//        // only CommonJS-like environments that support module.exports,
+//        // like Node.
+//        module.exports = factory();
+//    } else {
+//        // Browser globals (root is window)
+//        root.ColJs = factory();
+//    }
+//}(this, function () {
 var ColJs;
 (function (ColJs) {
     var ColHelper = (function () {
@@ -116,10 +116,14 @@ var ColJs;
             this.source = source;
         }
         Col.prototype.all = function (condition) {
-            return null;
+            for (var i = 0; i < this.source.length; i++) {
+                if (!condition(this.source[i]))
+                    return false;
+            }
+            return true;
         };
         Col.prototype.average = function (selector) {
-            return null;
+            return this.sum(selector) / this.source.length;
         };
         Col.prototype.intersect = function (second) {
             return null;
@@ -128,10 +132,14 @@ var ColJs;
             return Col.of(ColJs.ColHelper.shuffle(this.source));
         };
         Col.prototype.last = function (fn, defaultValue) {
-            return null;
+            for (var i = this.source.length - 1; i >= 0; i--) {
+                if (fn(this.source[i]))
+                    return this.source[i];
+            }
+            return defaultValue;
         };
         Col.prototype.clone = function () {
-            return null;
+            return Col.of(this.source.slice(0));
         };
         Col.prototype.orderByStable = function (fn) {
             return null;
@@ -189,7 +197,7 @@ var ColJs;
             }
         };
         Col.prototype.take = function (amount) {
-            var newSource = this.source.slice(0, amount);
+            var newSource = amount < 0 ? this.source.slice(amount) : this.source.slice(0, amount);
             return Col.of(newSource);
         };
         Col.prototype.first = function (fn, defaultValue) {
@@ -224,15 +232,19 @@ var ColJs;
             return ColJs.ColHelper.aggregate(this.source, 0, function (item, prevSum) { return prevSum + selector(item); });
         };
         Col.prototype.groupBy = function (keySelector) {
+            throw new Error("aaa");
             return null;
         };
         Col.prototype.selectMany = function (selector) {
+            throw new Error("aaa");
             return null;
         };
         Col.prototype.selectFirst = function (selector, validCondition) {
+            throw new Error("aaa");
             return null;
         };
         Col.prototype.toMap = function (keySelector, valueSelector) {
+            throw new Error("aaa");
             return null;
         };
         return Col;
@@ -321,10 +333,7 @@ var ColJs;
 })(ColJs || (ColJs = {}));
 ///<reference path="./src/Col.ts" />
 ///<reference path="./src/ColMap.ts" />
-var ColJs = {
-    Col: Col,
-    ColMap: ColMap
-};
+module.exports = ColJs;
 
-	return ColJs
-}));
+//	return ColJs
+//}));

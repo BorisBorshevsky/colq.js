@@ -200,8 +200,8 @@ module ColJs {
 
 
         groupBy(keySelector:(item:E)=>string):ColMap<E[]> {
-            throw new Error("aaa");
-            return null;
+            var groupedHash = MapHelper.orderedGroupByString(this.source, keySelector);
+            return groupedHash;
         }
 
         selectMany<R>(selector:(item:E)=>R[]):Col<R> {

@@ -232,8 +232,8 @@ var ColJs;
             return ColJs.ColHelper.aggregate(this.source, 0, function (item, prevSum) { return prevSum + selector(item); });
         };
         Col.prototype.groupBy = function (keySelector) {
-            throw new Error("aaa");
-            return null;
+            var groupedHash = ColJs.MapHelper.orderedGroupByString(this.source, keySelector);
+            return groupedHash;
         };
         Col.prototype.selectMany = function (selector) {
             throw new Error("aaa");
@@ -275,6 +275,21 @@ var ColJs;
                 return { key: key, value: val };
             }).toArray();
             return new ColJs.ColMap(hashCol);
+        };
+        MapHelper.orderedGroupByString = function (source, keySelector) {
+            var group = {};
+            var ordered = [];
+            for (var i = 0; i < source.length; i++) {
+                var item = source[i];
+                var key = keySelector(item);
+                if (!(key in group)) {
+                    ordered.push({ key: key, value: [] });
+                    group[key] = ordered.length - 1;
+                }
+                var index = group[key];
+                ordered[index].value.push(item);
+            }
+            return new ColJs.ColMap(ordered);
         };
         return MapHelper;
     })();

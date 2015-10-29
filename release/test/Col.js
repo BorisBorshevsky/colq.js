@@ -102,10 +102,14 @@ var ColJs;
             this.source = source;
         }
         Col.prototype.all = function (condition) {
-            return null;
+            for (var i = 0; i < this.source.length; i++) {
+                if (!condition(this.source[i]))
+                    return false;
+            }
+            return true;
         };
         Col.prototype.average = function (selector) {
-            return null;
+            return this.sum(selector) / this.source.length;
         };
         Col.prototype.intersect = function (second) {
             return null;
@@ -114,10 +118,14 @@ var ColJs;
             return Col.of(ColJs.ColHelper.shuffle(this.source));
         };
         Col.prototype.last = function (fn, defaultValue) {
-            return null;
+            for (var i = this.source.length - 1; i >= 0; i--) {
+                if (fn(this.source[i]))
+                    return this.source[i];
+            }
+            return defaultValue;
         };
         Col.prototype.clone = function () {
-            return null;
+            return Col.of(this.source.slice(0));
         };
         Col.prototype.orderByStable = function (fn) {
             return null;
@@ -175,7 +183,7 @@ var ColJs;
             }
         };
         Col.prototype.take = function (amount) {
-            var newSource = this.source.slice(0, amount);
+            var newSource = amount < 0 ? this.source.slice(amount) : this.source.slice(0, amount);
             return Col.of(newSource);
         };
         Col.prototype.first = function (fn, defaultValue) {
@@ -210,15 +218,19 @@ var ColJs;
             return ColJs.ColHelper.aggregate(this.source, 0, function (item, prevSum) { return prevSum + selector(item); });
         };
         Col.prototype.groupBy = function (keySelector) {
+            throw new Error("aaa");
             return null;
         };
         Col.prototype.selectMany = function (selector) {
+            throw new Error("aaa");
             return null;
         };
         Col.prototype.selectFirst = function (selector, validCondition) {
+            throw new Error("aaa");
             return null;
         };
         Col.prototype.toMap = function (keySelector, valueSelector) {
+            throw new Error("aaa");
             return null;
         };
         return Col;
@@ -311,9 +323,18 @@ var ColJs;
 ///<reference path="MapHelper.ts"/>
 ///<reference path="../typings/tsd.d.ts" />
 ///<reference path="../src/Components"/>
+var should = require('should');
 describe('Col', function () {
     describe('.of', function () {
         it('should return an instanceof ColJs.Col', function () {
+            console.log("ramimiam2");
+            var words = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam tristique dictum nisl, ut eleifend metus cursus at. Sed dignissim maximus purus, sed hendrerit tellus suscipit sit amet. Cras ac elit quis dolor facilisis porta. Vestibulum sollicitudin dolor lacinia, dictum mi ut, laoreet nunc. Fusce eros urna, accumsan eu nisi in, pulvinar imperdiet lacus. Nullam mattis feugiat risus nec venenatis. Phasellus scelerisque ullamcorper turpis, ut auctor augue auctor id. Nunc id tristique risus. In tristique nisl vel enim blandit condimentum. Aenean id est orci. Sed congue, quam quis interdum lacinia, sem massa semper lectus, non auctor erat metus mollis leo. Nunc ullamcorper nisl vel dictum consequat. Nullam dapibus justo in neque rutrum, vitae elementum magna tempus. Nunc non fermentum dui. Proin volutpat est id est porttitor convallis.Maecenas varius sit amet elit id commodo. Morbi efficitur aliquam finibus. Suspendisse euismod lorem quis rutrum placerat. Mauris dignissim lacus ac odio sollicitudin eleifend. Praesenaugue a libero ultrices luctus et a diam. In rutrum pretium venenatis. Praesent rutrum sed eros nec commodo. Maecenas luctus vel tellus sit amet accumsan. Donec elementum, nibh id vehicula vestibulum, nulla nisl sollicitudin nisl, eget pretium erat massa in metus.Pellentesque in ligula urna. Cras rhoncus, magna nec dignissim molestie, velit purus malesuada libero, quis blandit eros libero ac turpis. Curabitur auctor, eros tincidunt aliquet consequat, urna augue semper ex, ac consequat nunc dui nec justo. Nam libero augue, eleifend aliquet fringilla eu, mattis nec justo. Sed cursus enim in gravida scelerisque. Curabitur nec condimentum dui. Cras eu purus interdum, mattis tellus quis, maximus augue. Nulla facilisi. Donec id felis ac augue sodales lobortis ut et arcu. Nam vehicula purus ut nisl elementum, eget efficitur erat congue. Aliquam placerat vel magna eget tincidunt.Etiam mattis et velit quis tempus. Mauris eget varius nibh, eget sagittis dolor. Duis mattis enim metus, eu tempus erat ultrices ut. Se sl massa, eget tincidunt lacus tempor et. Nullam nec dui viverra, fermentum sapien at, sollicitudin quam. Aenean vitae erat vehicula, euismod sapien ut, varius leo. Suspendisse turpis lacus, sodales et ligula ac, ultricies tristique arcu. Duis vel dapibus tortor. Donec rutrum diam ut nibh pharetra, sed condimentum nisi molestie. Curabitur vel porta ante. Donec mattis vel tortor at bibendum. Nullam eleifend bibendum sem in vestibulum.';;
+            var a = ColJs.Col.of(words.split(' ')).groupBy(function (x) { return x; }).select(function (x) {
+                return { "word": x.key, "count": x.value.length };
+            }).toArray();
+
+            console.log(JSON.stringify(a));
+            console.log("end");
             ColJs.Col.of([1, 2, 3]).should.be.an.instanceOf(ColJs.Col);
         });
     });
@@ -490,7 +511,7 @@ describe('Col', function () {
     describe('#last', function () {
         it('should return the last item in the collection that satisfies the given condition', function () {
             var col = ColJs.Col.of([1, 2, 3, 4, 5, 6, 7, 8]);
-            col.last(function (n) { return n > 4; }, null).should.equal(5);
+            col.last(function (n) { return n > 4; }, null).should.equal(8);
         });
         it('should return the default value if no element satisfies the condition', function () {
             var col = ColJs.Col.of([1, 2, 3, 4, 5]);
