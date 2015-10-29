@@ -1,8 +1,29 @@
-# ColJs
+# Array Query Library
 A library inspired by linq, for an easy, typed and self explanatory use on Collections in typescript and javascript.
-the library provides a small set of general purpose collections with implementations.
-It should be compatible with any JS engine.
-ColJs minimized version is really small for boosting performance. 
+the library provides a set of general purpose wrappers for a collections that makes any complex collection; queryable, editable and easy to manipulate.
+the library is compatible with any JS engine (client and server).
+
+the minimized version is really small for boosting performance. 
+
+### Usage example
+```js
+var jsonArray = [
+    { "user": { "id": 100, "screen_name": "d_yoyo" }, "text": "to objects" },
+    { "user": { "id": 155, "screen_name": "c_ps" }, "text": "glueee" },
+    { "user": { "id": 130, "screen_name": "b_mskk" }, "text": "halo rami" },
+    { "user": { "id": 301, "screen_name": "a_xbox" }, "text": "halo boris" }
+];
+
+var result = Col.of(jsonArray)
+    .where(e -> e.user.id < 200)
+    .orderBy(e -> e.user.id)
+    .select(x -> x.user.screen_name + ':' + x.text)
+    .toArray();
+
+// output:
+// ["d_yoyo:to objects", "b_mskk:halo rami", "c_ps:glueee"]
+```
+
 
 # Content 
 Col - A collection implementation based on linq interface 
@@ -79,6 +100,10 @@ if none exists, returns the defaultValue:E.
 
 ### Count - count(condition:(item:E) => boolean):number
 returns the number of times condition:(item:E) is satisfied.
+```js
+    var amount = Col.of([1, 4, 2, 3, 5, 1, 2]).col.count(n ->  n === 1 || n === 2).;
+    // amount == 4
+```
 
 ### Contains - contains(condition:(item:E) => boolean):boolean
 returns whether the collection contains an element that satisfies the condition function - condition:(item:E)
@@ -157,7 +182,18 @@ returns a collection of all the values.
 Projects each value element of the collection into a new form.
 returns a new ColMap with the Projected items as values. 
 
+##Building
+Col.js uses Grunt for compiling TypeScript
 
+	npm install
+	grunt build //Builds debug
+	grunt release //Builds release version
+	
+##Running tests
+
+	npm install
+	grunt build
+	npm test
 
 ## In the next version:
 1. except ---Produces the set difference of two sequences. The set difference is the members of the first sequence that don't appear in the second sequence.

@@ -1,215 +1,330 @@
+(function (root, factory) {
+	if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        module.exports = factory();
+    } else {
+        // Browser globals (root is window)
+        root.ColJs = factory();
+    }
+}(this, function () {
 var ColJs;
-!function (t) {
-    var r = function () {
-        function t() {
+(function (ColJs) {
+    var ColHelper = (function () {
+        function ColHelper() {
         }
-
-        return t.maxBy = function (t, r) {
-            for (var n = null, e = null, o = 0; o < t.length; o++) {
-                var u = r(t[o]);
-                (null == n || u > n) && (n = u, e = t[o])
+        ColHelper.maxBy = function (source, selector) {
+            var bestResult = null;
+            var bestItem = null;
+            for (var i = 0; i < source.length; i++) {
+                var result = selector(source[i]);
+                if (bestResult == null || result > bestResult) {
+                    bestResult = result;
+                    bestItem = source[i];
+                }
             }
-            return e
-        }, t.each = function (t, r) {
-            for (var n = 0; n < t.length; n++)r(t[n], n)
-        }, t.count = function (t, r) {
-            for (var n = 0, e = 0; e < t.length; e++)r(t[e]) && n++;
-            return n
-        }, t.select = function (t, r) {
-            for (var n = [], e = 0; e < t.length; e++) {
-                var o = r(t[e], e);
-                n[e] = o
+            return bestItem;
+        };
+        ColHelper.each = function (source, fn) {
+            for (var i = 0; i < source.length; i++) {
+                fn(source[i], i);
             }
-            return n
-        }, t.where = function (t, r) {
-            for (var n = [], e = 0; e < t.length; e++)r(t[e]) && n.push(t[e]);
-            return n
-        }, t.any = function (t, r) {
-            for (var n = 0; n < t.length; n++)if (r(t[n]))return !0;
-            return !1
-        }, t.distinct = function (t, r) {
-            for (var n = {}, e = [], o = 0; o < t.length; o++) {
-                var u = t[o], i = r(u);
-                i in n || (n[r(u)] = !0, e.push(u))
+        };
+        ColHelper.count = function (source, fn) {
+            var count = 0;
+            for (var i = 0; i < source.length; i++) {
+                if (fn(source[i]))
+                    count++;
             }
-            return e
-        }, t.aggregate = function (t, r, n) {
-            for (var e = r, o = 0; o < t.length; o++)e = n(t[o], e);
-            return e
-        }, t.sort = function (t, r) {
-            var n = t.slice(0);
-            return n.sort(r)
-        }, t.shuffle = function (t) {
-            for (var r, n, e = t.slice(0), o = e.length; o;)n = Math.floor(Math.random() * o--), r = e[o], e[o] = e[n], e[n] = r;
-            return e
-        }, t
-    }();
-    t.ColHelper = r
-}(ColJs || (ColJs = {}));
+            return count;
+        };
+        ColHelper.select = function (source, fn) {
+            var results = [];
+            for (var i = 0; i < source.length; i++) {
+                var res = fn(source[i], i);
+                results[i] = res;
+            }
+            return results;
+        };
+        ColHelper.where = function (source, fn) {
+            var results = [];
+            for (var i = 0; i < source.length; i++) {
+                if (fn(source[i])) {
+                    results.push(source[i]);
+                }
+            }
+            return results;
+        };
+        ColHelper.any = function (source, fn) {
+            for (var i = 0; i < source.length; i++) {
+                if (fn(source[i]))
+                    return true;
+            }
+            return false;
+        };
+        ColHelper.distinct = function (source, keySelector) {
+            var map = {};
+            var results = [];
+            for (var i = 0; i < source.length; i++) {
+                var item = source[i];
+                var key = keySelector(item);
+                if (!(key in map)) {
+                    map[keySelector(item)] = true;
+                    results.push(item);
+                }
+            }
+            return results;
+        };
+        ColHelper.aggregate = function (source, initialValue, fn) {
+            var agg = initialValue;
+            for (var i = 0; i < source.length; i++) {
+                agg = fn(source[i], agg);
+            }
+            return agg;
+        };
+        ColHelper.sort = function (source, fn) {
+            var newSource = source.slice(0);
+            return newSource.sort(fn);
+        };
+        ColHelper.shuffle = function (source) {
+            var array = source.slice(0);
+            var amount = array.length;
+            var LastCellTemporary;
+            var pickedElement;
+            while (amount) {
+                pickedElement = Math.floor(Math.random() * amount--);
+                LastCellTemporary = array[amount];
+                array[amount] = array[pickedElement];
+                array[pickedElement] = LastCellTemporary;
+            }
+            return array;
+        };
+        return ColHelper;
+    })();
+    ColJs.ColHelper = ColHelper;
+})(ColJs || (ColJs = {}));
+///<reference path="./ColHelper.ts" />
 var ColJs;
-!function (t) {
-    var r = function () {
-        function r() {
+(function (ColJs) {
+    var Col = (function () {
+        function Col(source) {
+            this.source = null;
+            this.source = source;
         }
-
-        return r.toKeyedArray = function (t) {
-            var r = [];
-            for (var n in t)t.hasOwnProperty(n) && r.push({key: n, value: t[n]});
-            return r
-        }, r.ofHashString = function (r, n, e, o) {
-            var u = t.Col.of(r.split(n)), i = u.select(function (t) {
-                var r = t.split(e), n = r[0], u = r[1], i = o(u);
-                return {key: n, value: i}
+        Col.prototype.all = function (condition) {
+            return null;
+        };
+        Col.prototype.average = function (selector) {
+            return null;
+        };
+        Col.prototype.intersect = function (second) {
+            return null;
+        };
+        Col.prototype.randomize = function () {
+            return Col.of(ColJs.ColHelper.shuffle(this.source));
+        };
+        Col.prototype.last = function (fn, defaultValue) {
+            return null;
+        };
+        Col.prototype.clone = function () {
+            return null;
+        };
+        Col.prototype.orderByStable = function (fn) {
+            return null;
+        };
+        Col.prototype.orderByDescStable = function (fn) {
+            return null;
+        };
+        Col.of = function (source) {
+            return new Col(source);
+        };
+        Col.empty = function () {
+            return new Col([]);
+        };
+        Col.prototype.unique = function () {
+            var seen = {};
+            return new Col(this.source.filter(function (item) {
+                var itemKey = "" + item;
+                return seen.hasOwnProperty(itemKey) ? false : (seen[itemKey] = true);
+            }));
+        };
+        Col.prototype.length = function () {
+            return this.source.length;
+        };
+        Col.prototype.getItem = function (index) {
+            return this.source[index];
+        };
+        Col.prototype.each = function (fn) {
+            ColJs.ColHelper.each(this.source, fn);
+        };
+        Col.prototype.toArray = function () {
+            return this.source;
+        };
+        Col.prototype.count = function (fn) {
+            return ColJs.ColHelper.count(this.source, fn);
+        };
+        Col.prototype.select = function (fn) {
+            return Col.of(ColJs.ColHelper.select(this.source, fn));
+        };
+        Col.prototype.where = function (fn) {
+            return Col.of(ColJs.ColHelper.where(this.source, fn));
+        };
+        Col.prototype.orderBy = function (fn) {
+            return Col.of(ColJs.ColHelper.sort(this.source, function (a, b) { return fn(a) - fn(b); }));
+        };
+        Col.prototype.orderByDesc = function (fn) {
+            return Col.of(ColJs.ColHelper.sort(this.source, function (a, b) { return fn(b) - fn(a); }));
+        };
+        Col.prototype.skip = function (amount) {
+            if (amount >= this.source.length) {
+                return Col.empty();
+            }
+            else {
+                var newSource = this.source.slice(amount);
+                return Col.of(newSource);
+            }
+        };
+        Col.prototype.take = function (amount) {
+            var newSource = this.source.slice(0, amount);
+            return Col.of(newSource);
+        };
+        Col.prototype.first = function (fn, defaultValue) {
+            if (defaultValue === void 0) { defaultValue = null; }
+            for (var i = 0; i < this.source.length; i++) {
+                if (fn(this.source[i]))
+                    return this.source[i];
+            }
+            return defaultValue;
+        };
+        Col.prototype.contains = function (fn) {
+            return ColJs.ColHelper.any(this.source, fn);
+        };
+        Col.prototype.unionCol = function (other) {
+            var merged = this.source.concat(other.source);
+            return Col.of(merged);
+        };
+        Col.prototype.union = function (other) {
+            var merged = this.source.concat(other);
+            return Col.of(merged);
+        };
+        Col.prototype.distinct = function (keySelector) {
+            return Col.of(ColJs.ColHelper.distinct(this.source, keySelector));
+        };
+        Col.prototype.maxBy = function (selector) {
+            return ColJs.ColHelper.maxBy(this.source, selector);
+        };
+        Col.prototype.minBy = function (selector) {
+            return this.maxBy(function (e) { return -selector(e); });
+        };
+        Col.prototype.sum = function (selector) {
+            return ColJs.ColHelper.aggregate(this.source, 0, function (item, prevSum) { return prevSum + selector(item); });
+        };
+        Col.prototype.groupBy = function (keySelector) {
+            return null;
+        };
+        Col.prototype.selectMany = function (selector) {
+            return null;
+        };
+        Col.prototype.selectFirst = function (selector, validCondition) {
+            return null;
+        };
+        Col.prototype.toMap = function (keySelector, valueSelector) {
+            return null;
+        };
+        return Col;
+    })();
+    ColJs.Col = Col;
+})(ColJs || (ColJs = {}));
+var ColJs;
+(function (ColJs) {
+    var MapHelper = (function () {
+        function MapHelper() {
+        }
+        MapHelper.toKeyedArray = function (source) {
+            var pairs = [];
+            for (var key in source) {
+                if (source.hasOwnProperty(key)) {
+                    pairs.push({ key: key, value: source[key] });
+                }
+            }
+            return pairs;
+        };
+        MapHelper.ofHashString = function (source, pairSeperator, keyValSeperator, valueTransform) {
+            var pairsStringCol = ColJs.Col.of(source.split(pairSeperator));
+            var hashCol = pairsStringCol.select(function (pairString) {
+                var pair = pairString.split(keyValSeperator);
+                var key = pair[0];
+                var rawVal = pair[1];
+                var val = valueTransform(rawVal);
+                return { key: key, value: val };
             }).toArray();
-            return new t.ColMap(i)
-        }, r
-    }();
-    t.MapHelper = r
-}(ColJs || (ColJs = {}));
-var __extends = this && this.__extends || function (t, r) {
-        function n() {
-            this.constructor = t
-        }
-
-        for (var e in r)r.hasOwnProperty(e) && (t[e] = r[e]);
-        t.prototype = null === r ? Object.create(r) : (n.prototype = r.prototype, new n)
-    }, ColJs;
-!function (t) {
-    var r = function (r) {
-        function n(t) {
-            r.call(this, t)
-        }
-
-        return __extends(n, r), n.ofHash = function (r) {
-            return new n(t.MapHelper.toKeyedArray(r))
-        }, n.ofUrlString = function (r) {
-            return t.MapHelper.ofHashString(r, "&", "=", function (t) {
-                return decodeURIComponent(t)
-            })
-        }, n.emptyColMap = function () {
-            return n.ofHash({})
-        }, n.prototype.get = function (t) {
-            var r = this.first(function (r) {
-                return r.key == t
-            });
-            return r ? r.value : null
-        }, n.prototype.containsKey = function (t) {
-            var r = this.first(function (r) {
-                return r.key == t
-            });
-            return !!r
-        }, n.prototype.keys = function () {
-            return this.select(function (t) {
-                return t.key
-            })
-        }, n.prototype.values = function () {
-            return this.select(function (t) {
-                return t.value
-            })
-        }, n.prototype.selectValues = function (t) {
-            var r = this.select(function (r) {
-                return {key: r.key, value: t(r)}
-            });
-            return new n(r.toArray())
-        }, n
-    }(t.Col);
-    t.ColMap = r
-}(ColJs || (ColJs = {}));
+            return new ColJs.ColMap(hashCol);
+        };
+        return MapHelper;
+    })();
+    ColJs.MapHelper = MapHelper;
+})(ColJs || (ColJs = {}));
+///<reference path="./MapHelper.ts" />
+///<reference path="./Col.ts" />
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var ColJs;
-!function (t) {
-    var r = function () {
-        function r(t) {
-            this.source = null, this.source = t
+(function (ColJs) {
+    var ColMap = (function (_super) {
+        __extends(ColMap, _super);
+        function ColMap(source) {
+            _super.call(this, source);
         }
+        ColMap.ofHash = function (source) {
+            return new ColMap(ColJs.MapHelper.toKeyedArray(source));
+        };
+        ColMap.ofUrlString = function (source) {
+            return ColJs.MapHelper.ofHashString(source, "&", "=", function (raw) { return decodeURIComponent(raw); });
+        };
+        ColMap.emptyColMap = function () {
+            return ColMap.ofHash({});
+        };
+        ColMap.prototype.get = function (key) {
+            var kv = this.first(function (kv) { return kv.key == key; });
+            return kv ? kv.value : null;
+        };
+        ColMap.prototype.containsKey = function (key) {
+            var kv = this.first(function (kv) { return kv.key == key; });
+            return !!kv;
+        };
+        ColMap.prototype.keys = function () {
+            return this.select(function (x) { return x.key; });
+        };
+        ColMap.prototype.values = function () {
+            return this.select(function (x) { return x.value; });
+        };
+        ColMap.prototype.selectValues = function (fn) {
+            var raw = this.select(function (item) {
+                return {
+                    key: item.key,
+                    value: fn(item)
+                };
+            });
+            return new ColMap(raw.toArray());
+        };
+        return ColMap;
+    })(ColJs.Col);
+    ColJs.ColMap = ColMap;
+})(ColJs || (ColJs = {}));
+///<reference path="./src/Col.ts" />
+///<reference path="./src/ColMap.ts" />
+var ColJs = {
+    Col: Col,
+    ColMap: ColMap
+};
 
-        return r.prototype.all = function (t) {
-            return null
-        }, r.prototype.average = function (t) {
-            return null
-        }, r.prototype.intersect = function (t) {
-            return null
-        }, r.prototype.randomize = function () {
-            return r.of(t.ColHelper.shuffle(this.source))
-        }, r.prototype.last = function (t, r) {
-            return null
-        }, r.prototype.clone = function () {
-            return null
-        }, r.prototype.orderByStable = function (t) {
-            return null
-        }, r.prototype.orderByDescStable = function (t) {
-            return null
-        }, r.of = function (t) {
-            return new r(t)
-        }, r.empty = function () {
-            return new r([])
-        }, r.prototype.unique = function () {
-            var t = {};
-            return new r(this.source.filter(function (r) {
-                var n = "" + r;
-                return t.hasOwnProperty(n) ? !1 : t[n] = !0
-            }))
-        }, r.prototype.length = function () {
-            return this.source.length
-        }, r.prototype.getItem = function (t) {
-            return this.source[t]
-        }, r.prototype.each = function (r) {
-            t.ColHelper.each(this.source, r)
-        }, r.prototype.toArray = function () {
-            return this.source
-        }, r.prototype.count = function (r) {
-            return t.ColHelper.count(this.source, r)
-        }, r.prototype.select = function (n) {
-            return r.of(t.ColHelper.select(this.source, n))
-        }, r.prototype.where = function (n) {
-            return r.of(t.ColHelper.where(this.source, n))
-        }, r.prototype.orderBy = function (n) {
-            return r.of(t.ColHelper.sort(this.source, function (t, r) {
-                return n(t) - n(r)
-            }))
-        }, r.prototype.orderByDesc = function (n) {
-            return r.of(t.ColHelper.sort(this.source, function (t, r) {
-                return n(r) - n(t)
-            }))
-        }, r.prototype.skip = function (t) {
-            if (t >= this.source.length)return r.empty();
-            var n = this.source.slice(t);
-            return r.of(n)
-        }, r.prototype.take = function (t) {
-            var n = this.source.slice(0, t);
-            return r.of(n)
-        }, r.prototype.first = function (t, r) {
-            void 0 === r && (r = null);
-            for (var n = 0; n < this.source.length; n++)if (t(this.source[n]))return this.source[n];
-            return r
-        }, r.prototype.contains = function (r) {
-            return t.ColHelper.any(this.source, r)
-        }, r.prototype.unionCol = function (t) {
-            var n = this.source.concat(t.source);
-            return r.of(n)
-        }, r.prototype.union = function (t) {
-            var n = this.source.concat(t);
-            return r.of(n)
-        }, r.prototype.distinct = function (n) {
-            return r.of(t.ColHelper.distinct(this.source, n))
-        }, r.prototype.maxBy = function (r) {
-            return t.ColHelper.maxBy(this.source, r)
-        }, r.prototype.minBy = function (t) {
-            return this.maxBy(function (r) {
-                return -t(r)
-            })
-        }, r.prototype.sum = function (r) {
-            return t.ColHelper.aggregate(this.source, 0, function (t, n) {
-                return n + r(t)
-            })
-        }, r.prototype.groupBy = function (t) {
-            return null
-        }, r.prototype.selectMany = function (t) {
-            return null
-        }, r.prototype.selectFirst = function (t, r) {
-            return null
-        }, r.prototype.toMap = function (t, r) {
-            return null
-        }, r
-    }();
-    t.Col = r
-}(ColJs || (ColJs = {}));
+	return ColJs
+}));

@@ -1,6 +1,7 @@
+
 module ColJs {
 
-    export class ColHelper {
+export class ColHelper {
 
         static maxBy<T>(source:T[], selector:(item:T) => number):T {
 
@@ -99,9 +100,9 @@ module ColJs {
             var amount = array.length;
             var LastCellTemporary;
             var pickedElement;
-            // While there remain elements to shuffle…
+            // While there remain elements to shuffleï¿½
             while (amount) {
-                // Pick a remaining element…
+                // Pick a remaining elementï¿½
                 pickedElement = Math.floor(Math.random() * amount--);
                 // And swap it with the current element.
                 LastCellTemporary = array[amount];
@@ -111,7 +112,4 @@ module ColJs {
 
             return array;
         }
-    }
-
-
-}
+    }}

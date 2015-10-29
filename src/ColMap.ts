@@ -1,8 +1,9 @@
-///<reference path="MapHelper.ts"/>
+///<reference path="./MapHelper.ts" />
+///<reference path="./Col.ts" />
 
-module ColJs {
+module ColJs{
 
-    interface ColMapBase<E> {
+interface ColMapBase<E> {
         get(key:string):E
         containsKey(key:string):boolean
         keys():Col<string>
@@ -11,12 +12,12 @@ module ColJs {
     }
 
 
-    export interface Keyed<V> {
+export interface Keyed<V> {
         key:string;
         value:V
     }
 
-    export class ColMap<E> extends Col<Keyed<E>> {
+export class ColMap<E> extends Col<Keyed<E>> {
 
         constructor(source:Keyed<E>[]) {
             super(source);
@@ -63,5 +64,4 @@ module ColJs {
             return new ColMap(raw.toArray());
         }
 
-    }
-}
+    }}
