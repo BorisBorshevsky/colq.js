@@ -1,9 +1,22 @@
+//(function (root, factory) {
+//	if (typeof define === 'function' && define.amd) {
+//        // AMD. Register as an anonymous module.
+//        define([], factory);
+//    } else if (typeof module === 'object' && module.exports) {
+//        // Node. Does not work with strict CommonJS, but
+//        // only CommonJS-like environments that support module.exports,
+//        // like Node.
+//        module.exports = factory();
+//    } else {
+//        // Browser globals (root is window)
+//        root.ColJs = factory();
+//    }
+//}(this, function () {
 var ColJs;
 (function (ColJs) {
     var ColHelper = (function () {
         function ColHelper() {
         }
-
         ColHelper.maxBy = function (source, selector) {
             var bestResult = null;
             var bestItem = null;
@@ -82,11 +95,8 @@ var ColJs;
             var amount = array.length;
             var LastCellTemporary;
             var pickedElement;
-            // While there remain elements to shuffle�
             while (amount) {
-                // Pick a remaining element�
                 pickedElement = Math.floor(Math.random() * amount--);
-                // And swap it with the current element.
                 LastCellTemporary = array[amount];
                 array[amount] = array[pickedElement];
                 array[pickedElement] = LastCellTemporary;
@@ -97,101 +107,7 @@ var ColJs;
     })();
     ColJs.ColHelper = ColHelper;
 })(ColJs || (ColJs = {}));
-var ColJs;
-(function (ColJs) {
-    var MapHelper = (function () {
-        function MapHelper() {
-        }
-
-        MapHelper.toKeyedArray = function (source) {
-            var pairs = [];
-            for (var key in source) {
-                if (source.hasOwnProperty(key)) {
-                    pairs.push({key: key, value: source[key]});
-                }
-            }
-            return pairs;
-        };
-        MapHelper.ofHashString = function (source, pairSeperator, keyValSeperator, valueTransform) {
-            var pairsStringCol = ColJs.Col.of(source.split(pairSeperator));
-            var hashCol = pairsStringCol.select(function (pairString) {
-                var pair = pairString.split(keyValSeperator);
-                var key = pair[0];
-                var rawVal = pair[1];
-                var val = valueTransform(rawVal);
-                return {key: key, value: val};
-            }).toArray();
-            return new ColJs.ColMap(hashCol);
-        };
-        return MapHelper;
-    })();
-    ColJs.MapHelper = MapHelper;
-})(ColJs || (ColJs = {}));
-///<reference path="MapHelper.ts"/>
-var __extends = (this && this.__extends) || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        function __() {
-            this.constructor = d;
-        }
-
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-var ColJs;
-(function (ColJs) {
-    var ColMap = (function (_super) {
-        __extends(ColMap, _super);
-        function ColMap(source) {
-            _super.call(this, source);
-        }
-
-        ColMap.ofHash = function (source) {
-            return new ColMap(ColJs.MapHelper.toKeyedArray(source));
-        };
-        ColMap.ofUrlString = function (source) {
-            return ColJs.MapHelper.ofHashString(source, "&", "=", function (raw) {
-                return decodeURIComponent(raw);
-            });
-        };
-        ColMap.emptyColMap = function () {
-            return ColMap.ofHash({});
-        };
-        ColMap.prototype.get = function (key) {
-            var kv = this.first(function (kv) {
-                return kv.key == key;
-            });
-            return kv ? kv.value : null;
-        };
-        ColMap.prototype.containsKey = function (key) {
-            var kv = this.first(function (kv) {
-                return kv.key == key;
-            });
-            return !!kv;
-        };
-        ColMap.prototype.keys = function () {
-            return this.select(function (x) {
-                return x.key;
-            });
-        };
-        ColMap.prototype.values = function () {
-            return this.select(function (x) {
-                return x.value;
-            });
-        };
-        ColMap.prototype.selectValues = function (fn) {
-            var raw = this.select(function (item) {
-                return {
-                    key: item.key,
-                    value: fn(item)
-                };
-            });
-            return new ColMap(raw.toArray());
-        };
-        return ColMap;
-    })(ColJs.Col);
-    ColJs.ColMap = ColMap;
-})(ColJs || (ColJs = {}));
-///<reference path="ColHelper"/>
-///<reference path="ColMap"/>
+///<reference path="./ColHelper.ts" />
 var ColJs;
 (function (ColJs) {
     var Col = (function () {
@@ -199,12 +115,15 @@ var ColJs;
             this.source = null;
             this.source = source;
         }
-
         Col.prototype.all = function (condition) {
-            return null;
+            for (var i = 0; i < this.source.length; i++) {
+                if (!condition(this.source[i]))
+                    return false;
+            }
+            return true;
         };
         Col.prototype.average = function (selector) {
-            return null;
+            return this.sum(selector) / this.source.length;
         };
         Col.prototype.intersect = function (second) {
             return null;
@@ -213,10 +132,14 @@ var ColJs;
             return Col.of(ColJs.ColHelper.shuffle(this.source));
         };
         Col.prototype.last = function (fn, defaultValue) {
-            return null;
+            for (var i = this.source.length - 1; i >= 0; i--) {
+                if (fn(this.source[i]))
+                    return this.source[i];
+            }
+            return defaultValue;
         };
         Col.prototype.clone = function () {
-            return null;
+            return Col.of(this.source.slice(0));
         };
         Col.prototype.orderByStable = function (fn) {
             return null;
@@ -259,16 +182,11 @@ var ColJs;
             return Col.of(ColJs.ColHelper.where(this.source, fn));
         };
         Col.prototype.orderBy = function (fn) {
-            return Col.of(ColJs.ColHelper.sort(this.source, function (a, b) {
-                return fn(a) - fn(b);
-            }));
+            return Col.of(ColJs.ColHelper.sort(this.source, function (a, b) { return fn(a) - fn(b); }));
         };
         Col.prototype.orderByDesc = function (fn) {
-            return Col.of(ColJs.ColHelper.sort(this.source, function (a, b) {
-                return fn(b) - fn(a);
-            }));
+            return Col.of(ColJs.ColHelper.sort(this.source, function (a, b) { return fn(b) - fn(a); }));
         };
-        /////////////// not part of interface ///////
         Col.prototype.skip = function (amount) {
             if (amount >= this.source.length) {
                 return Col.empty();
@@ -279,13 +197,11 @@ var ColJs;
             }
         };
         Col.prototype.take = function (amount) {
-            var newSource = this.source.slice(0, amount);
+            var newSource = amount < 0 ? this.source.slice(amount) : this.source.slice(0, amount);
             return Col.of(newSource);
         };
         Col.prototype.first = function (fn, defaultValue) {
-            if (defaultValue === void 0) {
-                defaultValue = null;
-            }
+            if (defaultValue === void 0) { defaultValue = null; }
             for (var i = 0; i < this.source.length; i++) {
                 if (fn(this.source[i]))
                     return this.source[i];
@@ -310,29 +226,114 @@ var ColJs;
             return ColJs.ColHelper.maxBy(this.source, selector);
         };
         Col.prototype.minBy = function (selector) {
-            return this.maxBy(function (e) {
-                return -selector(e);
-            });
+            return this.maxBy(function (e) { return -selector(e); });
         };
         Col.prototype.sum = function (selector) {
-            return ColJs.ColHelper.aggregate(this.source, 0, function (item, prevSum) {
-                return prevSum + selector(item);
-            });
+            return ColJs.ColHelper.aggregate(this.source, 0, function (item, prevSum) { return prevSum + selector(item); });
         };
         Col.prototype.groupBy = function (keySelector) {
+            throw new Error("aaa");
             return null;
         };
         Col.prototype.selectMany = function (selector) {
+            throw new Error("aaa");
             return null;
         };
         Col.prototype.selectFirst = function (selector, validCondition) {
+            throw new Error("aaa");
             return null;
         };
         Col.prototype.toMap = function (keySelector, valueSelector) {
+            throw new Error("aaa");
             return null;
         };
         return Col;
     })();
     ColJs.Col = Col;
 })(ColJs || (ColJs = {}));
-//# sourceMappingURL=Col.js.map
+var ColJs;
+(function (ColJs) {
+    var MapHelper = (function () {
+        function MapHelper() {
+        }
+        MapHelper.toKeyedArray = function (source) {
+            var pairs = [];
+            for (var key in source) {
+                if (source.hasOwnProperty(key)) {
+                    pairs.push({ key: key, value: source[key] });
+                }
+            }
+            return pairs;
+        };
+        MapHelper.ofHashString = function (source, pairSeperator, keyValSeperator, valueTransform) {
+            var pairsStringCol = ColJs.Col.of(source.split(pairSeperator));
+            var hashCol = pairsStringCol.select(function (pairString) {
+                var pair = pairString.split(keyValSeperator);
+                var key = pair[0];
+                var rawVal = pair[1];
+                var val = valueTransform(rawVal);
+                return { key: key, value: val };
+            }).toArray();
+            return new ColJs.ColMap(hashCol);
+        };
+        return MapHelper;
+    })();
+    ColJs.MapHelper = MapHelper;
+})(ColJs || (ColJs = {}));
+///<reference path="./MapHelper.ts" />
+///<reference path="./Col.ts" />
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var ColJs;
+(function (ColJs) {
+    var ColMap = (function (_super) {
+        __extends(ColMap, _super);
+        function ColMap(source) {
+            _super.call(this, source);
+        }
+        ColMap.ofHash = function (source) {
+            return new ColMap(ColJs.MapHelper.toKeyedArray(source));
+        };
+        ColMap.ofUrlString = function (source) {
+            return ColJs.MapHelper.ofHashString(source, "&", "=", function (raw) { return decodeURIComponent(raw); });
+        };
+        ColMap.emptyColMap = function () {
+            return ColMap.ofHash({});
+        };
+        ColMap.prototype.get = function (key) {
+            var kv = this.first(function (kv) { return kv.key == key; });
+            return kv ? kv.value : null;
+        };
+        ColMap.prototype.containsKey = function (key) {
+            var kv = this.first(function (kv) { return kv.key == key; });
+            return !!kv;
+        };
+        ColMap.prototype.keys = function () {
+            return this.select(function (x) { return x.key; });
+        };
+        ColMap.prototype.values = function () {
+            return this.select(function (x) { return x.value; });
+        };
+        ColMap.prototype.selectValues = function (fn) {
+            var raw = this.select(function (item) {
+                return {
+                    key: item.key,
+                    value: fn(item)
+                };
+            });
+            return new ColMap(raw.toArray());
+        };
+        return ColMap;
+    })(ColJs.Col);
+    ColJs.ColMap = ColMap;
+})(ColJs || (ColJs = {}));
+///<reference path="./src/Col.ts" />
+///<reference path="./src/ColMap.ts" />
+module.exports = ColJs;
+
+//	return ColJs
+//}));

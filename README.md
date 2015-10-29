@@ -157,7 +157,18 @@ returns a collection of all the values.
 Projects each value element of the collection into a new form.
 returns a new ColMap with the Projected items as values. 
 
+##Building
+Col.js uses Grunt for compiling TypeScript
 
+	npm install
+	grunt build //Builds debug
+	grunt release //Builds release version
+	
+##Running tests
+
+	npm install
+	grunt build
+	npm test
 
 ## In the next version:
 1. except ---Produces the set difference of two sequences. The set difference is the members of the first sequence that don't appear in the second sequence.

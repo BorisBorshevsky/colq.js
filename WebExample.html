@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Example</title>
+    <script src="debug/Col.js"></script>
+
+</head>
+<body>
+<script>
+    var sum = ColJs.Col.of([1,2,3,4,5]).sum(function(e) {return e;})
+    document.body.innerHTML = "the sum of [1,2,3,4,5] is " + sum;
+</script>
+</body>
+</html>

@@ -1,17 +1,16 @@
-module ColJs {
+module ColJs{
 
-    export class MapHelper {
-
-
-        static toKeyedArray<T>(source:{[index:string]: T}):Keyed<T>[] {
-            var pairs:Keyed<T>[] = [];
-            for (var key in source) {
-                if (source.hasOwnProperty(key)) {
-                    pairs.push({key: key, value: source[key]});
-                }
+export class MapHelper {
+	
+	static toKeyedArray<T>(source:{[index:string]: T}):Keyed<T>[] {
+		var pairs:Keyed<T>[] = [];
+		for (var key in source) {
+			if (source.hasOwnProperty(key)) {
+				pairs.push({key: key, value: source[key]});
             }
-            return pairs;
         }
+        return pairs;
+	}
 
         static ofHashString<T>(source:string, pairSeperator:string, keyValSeperator:string, valueTransform:(value:string) => T):ColMap<T> {
 
@@ -30,4 +29,5 @@ module ColJs {
 
 
     }
-}
+    
+    }
