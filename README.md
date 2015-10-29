@@ -34,8 +34,6 @@ ColMap - A collection implementation based on Map interface - has all the functi
 * [Col JS](#col-api)
 * [ColMap JS](#colmap-api)
 
-## Code Examples 
-To be added.
 
 <a name="col-api"></a>
 ## Col JS
