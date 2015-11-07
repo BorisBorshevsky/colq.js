@@ -11,8 +11,6 @@ module ColJs {
         select<R>(fn:(item:E, index:number) => R):Col<R>;
         orderBy(fn:(item:E) => number):Col<E>;
         orderByDesc(fn:(item:E) => number):Col<E>;
-        orderByStable(fn:(item:E) => number):Col<E>;
-        orderByDescStable(fn:(item:E) => number):Col<E>;
         where(condition:(item:E) => boolean):Col<E>;
         skip(count:number):Col<E>;
         take(count:number):Col<E>;
@@ -34,14 +32,20 @@ module ColJs {
         randomize():Col<E>;
         intersect(second:Col<E>):Col<E>;
         all(condition:(item:E) => boolean):boolean
+
         //except ---Produces the set difference of two sequences. The set difference is the members of the first sequence that don't appear in the second sequence.
-        //GroupJoin -- Correlates the elements of two sequences based on key equality, and groups the results.
-        //Repeat -- Generates a sequence that contains one repeated value.
-        //Reverse -- Inverts the order of the elements in a sequence.
+        //groupJoin -- Correlates the elements of two sequences based on key equality, and groups the results.
+        //repeat -- Generates a sequence that contains one repeated value.
+        //reverse -- Inverts the order of the elements in a sequence.
+        //multiOrderBy -- order by multiple comparators
+        //selectTopAndCloseEnough -- select the top element and a group of elements that are close to him (some threshold)
+        //normalize(selector:(item:E) => number, setter:(item:E, value:number)=> void, min:number = 0, max:number = 1)
     }
 
 
     export class Col<E> implements CollectionBase<E> {
+
+        private source:Array<E> = null;
 
         all(condition:(element:E)=>boolean):boolean {
             for (var i = 0; i < this.source.length; i++) {
@@ -51,11 +55,11 @@ module ColJs {
         }
 
         average(selector:(item:E) => number):number {
-            return this.sum(selector)/this.source.length;
+            return this.sum(selector) / this.source.length;
         }
 
         intersect(second:Col<E>):Col<E> {
-            return null;
+            return Col.of(ColHelper.intersect<E>(this.source, second.toArray()));
         }
 
         randomize():Col<E> {
@@ -69,19 +73,22 @@ module ColJs {
             return defaultValue;
         }
 
-        clone<E>():Col<E> {
-            return Col.of<E>(this.source.slice(0));
+        clone():Col<E> {
+            return Col.of(this.source.slice(0));
         }
 
-        orderByStable(fn:(p1:E)=>number):Col<E> {
-            return null;
-        }
+        normalize(selector:(item:E) => number, setter:(item:E, value:number)=> void, min:number = 0, max:number = 1):void {
+            if (this.length() == 0) return;
 
-        orderByDescStable(fn:(p1:E)=>number):Col<E> {
-            return null;
-        }
+            var minValue = selector(this.minBy(selector));
+            var maxValue = selector(this.maxBy(selector));
 
-        private source:Array<E> = null;
+            this.each(item => {
+                var rawValue = selector(item);
+                var normValue = maxValue > minValue ? (rawValue - minValue) / (maxValue - minValue) : (max - min / 2);
+                setter(item, normValue);
+            });
+        }
 
         constructor(source:Array<E>) {
             this.source = source;
@@ -116,7 +123,6 @@ module ColJs {
             ColHelper.each(this.source, fn);
         }
 
-
         toArray():E[] {
             return this.source;
         }
@@ -142,8 +148,6 @@ module ColJs {
             return Col.of(ColHelper.sort(this.source, (a, b) => fn(b) - fn(a)));
         }
 
-
-        /////////////// not part of interface ///////
 
 
         skip(amount:number):Col<E> {
@@ -204,19 +208,33 @@ module ColJs {
             return groupedHash;
         }
 
-        selectMany<R>(selector:(item:E)=>R[]):Col<R> {
-            throw new Error("aaa");
+        selectMany<R>(selector:(item:E) => R[]):Col<R> {
+            var results:R[] = [];
+            this.each(item => results = results.concat(selector(item)));
+
+            return Col.of(results);
+        }
+
+        selectFirst<R>(selector:(item:E) => R, validCondition:(p1:R) => boolean):R {
+            for (var i = 0; i < this.source.length; i++) {
+                var itemResult:R = selector(this.source[i]);
+                if (validCondition(itemResult)) return itemResult;
+            }
+
             return null;
         }
 
-        selectFirst<R>(selector:(item:E)=>R, validCondition:(p1:R)=>boolean):R {
-            throw new Error("aaa");
-            return null;
+        reverse():Col<E>{
+            return Col.of(this.source.reverse());
         }
+
 
         toMap<R>(keySelector:(item:E)=>string, valueSelector:(p1:E)=>R):ColMap<R> {
-            throw new Error("aaa");
-            return null;
+            var keyedCol = this.select(x => {
+                return {key: keySelector(x), value: valueSelector(x)};
+            });
+
+            return new ColMap<R>(keyedCol.toArray());
         }
     }
 }

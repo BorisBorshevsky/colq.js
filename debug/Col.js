@@ -50,6 +50,18 @@ var ColJs;
             }
             return results;
         };
+        ColHelper.intersect = function (first, second) {
+            var result = [];
+            for (var f = 0; f < first.length; f++) {
+                for (var s = 0; s < second.length; s++) {
+                    if (first[f] == second[s]) {
+                        result.push(first[f]);
+                        break;
+                    }
+                }
+            }
+            return result;
+        };
         ColHelper.where = function (source, fn) {
             var results = [];
             for (var i = 0; i < source.length; i++) {
@@ -126,7 +138,7 @@ var ColJs;
             return this.sum(selector) / this.source.length;
         };
         Col.prototype.intersect = function (second) {
-            return null;
+            return Col.of(ColJs.ColHelper.intersect(this.source, second.toArray()));
         };
         Col.prototype.randomize = function () {
             return Col.of(ColJs.ColHelper.shuffle(this.source));
@@ -140,12 +152,6 @@ var ColJs;
         };
         Col.prototype.clone = function () {
             return Col.of(this.source.slice(0));
-        };
-        Col.prototype.orderByStable = function (fn) {
-            return null;
-        };
-        Col.prototype.orderByDescStable = function (fn) {
-            return null;
         };
         Col.of = function (source) {
             return new Col(source);
@@ -236,16 +242,26 @@ var ColJs;
             return groupedHash;
         };
         Col.prototype.selectMany = function (selector) {
-            throw new Error("aaa");
-            return null;
+            var results = [];
+            this.each(function (item) { return results = results.concat(selector(item)); });
+            return Col.of(results);
         };
         Col.prototype.selectFirst = function (selector, validCondition) {
-            throw new Error("aaa");
+            for (var i = 0; i < this.source.length; i++) {
+                var itemResult = selector(this.source[i]);
+                if (validCondition(itemResult))
+                    return itemResult;
+            }
             return null;
         };
+        Col.prototype.reverse = function () {
+            return Col.of(this.source.reverse());
+        };
         Col.prototype.toMap = function (keySelector, valueSelector) {
-            throw new Error("aaa");
-            return null;
+            var keyedCol = this.select(function (x) {
+                return { key: keySelector(x), value: valueSelector(x) };
+            });
+            return new ColJs.ColMap(keyedCol.toArray());
         };
         return Col;
     })();

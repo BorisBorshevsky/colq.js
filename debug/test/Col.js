@@ -36,6 +36,18 @@ var ColJs;
             }
             return results;
         };
+        ColHelper.intersect = function (first, second) {
+            var result = [];
+            for (var f = 0; f < first.length; f++) {
+                for (var s = 0; s < second.length; s++) {
+                    if (first[f] == second[s]) {
+                        result.push(first[f]);
+                        break;
+                    }
+                }
+            }
+            return result;
+        };
         ColHelper.where = function (source, fn) {
             var results = [];
             for (var i = 0; i < source.length; i++) {
@@ -112,7 +124,7 @@ var ColJs;
             return this.sum(selector) / this.source.length;
         };
         Col.prototype.intersect = function (second) {
-            return null;
+            return Col.of(ColJs.ColHelper.intersect(this.source, second.toArray()));
         };
         Col.prototype.randomize = function () {
             return Col.of(ColJs.ColHelper.shuffle(this.source));
@@ -126,12 +138,6 @@ var ColJs;
         };
         Col.prototype.clone = function () {
             return Col.of(this.source.slice(0));
-        };
-        Col.prototype.orderByStable = function (fn) {
-            return null;
-        };
-        Col.prototype.orderByDescStable = function (fn) {
-            return null;
         };
         Col.of = function (source) {
             return new Col(source);
@@ -222,16 +228,26 @@ var ColJs;
             return groupedHash;
         };
         Col.prototype.selectMany = function (selector) {
-            throw new Error("aaa");
-            return null;
+            var results = [];
+            this.each(function (item) { return results = results.concat(selector(item)); });
+            return Col.of(results);
         };
         Col.prototype.selectFirst = function (selector, validCondition) {
-            throw new Error("aaa");
+            for (var i = 0; i < this.source.length; i++) {
+                var itemResult = selector(this.source[i]);
+                if (validCondition(itemResult))
+                    return itemResult;
+            }
             return null;
         };
+        Col.prototype.reverse = function () {
+            return Col.of(this.source.reverse());
+        };
         Col.prototype.toMap = function (keySelector, valueSelector) {
-            throw new Error("aaa");
-            return null;
+            var keyedCol = this.select(function (x) {
+                return { key: keySelector(x), value: valueSelector(x) };
+            });
+            return new ColJs.ColMap(keyedCol.toArray());
         };
         return Col;
     })();
@@ -424,46 +440,6 @@ describe('Col', function () {
             var col = ColJs.Col.of([5, 3, 1, 2, 4]), ordered = [5, 4, 3, 2, 1];
             var orderedCol = col.orderByDesc(function (item) {
                 return item;
-            });
-            ordered.forEach(function (item, index) {
-                orderedCol.getItem(index).should.equal(item);
-            });
-        });
-    });
-    describe('#orderByStable', function () {
-        it('should order the items in ascending order bases on the provided score', function () {
-            var col = ColJs.Col.of([5, 3, 1, 2, 4]), ordered = [1, 2, 3, 4, 5];
-            var orderedCol = col.orderByStable(function (item) {
-                return item;
-            });
-            ordered.forEach(function (item, index) {
-                orderedCol.getItem(index).should.equal(item);
-            });
-        });
-        it('should preserve the order of items with the same score', function () {
-            var col = ColJs.Col.of([1, 2, 3, 4, 5, 6, 7, 8]), ordered = [4, 5, 6, 1, 2, 3, 7, 8, 9];
-            var orderedCol = col.orderByStable(function (item) {
-                return item > 6 ? 3 : (item > 3 ? 1 : 2);
-            });
-            ordered.forEach(function (item, index) {
-                orderedCol.getItem(index).should.equal(item);
-            });
-        });
-    });
-    describe('#orderByDescStable', function () {
-        it('should order the items in descending order bases on the provided score', function () {
-            var col = ColJs.Col.of([5, 3, 1, 2, 4]), ordered = [5, 4, 3, 2, 1];
-            var orderedCol = col.orderByDescStable(function (item) {
-                return item;
-            });
-            ordered.forEach(function (item, index) {
-                orderedCol.getItem(index).should.equal(item);
-            });
-        });
-        it('should preserve the order of items with the same score', function () {
-            var col = ColJs.Col.of([1, 2, 3, 4, 5, 6, 7, 8]), ordered = [7, 8, 9, 1, 2, 3, 4, 5, 6];
-            var orderedCol = col.orderByDescStable(function (item) {
-                return item > 6 ? 3 : (item > 3 ? 1 : 2);
             });
             ordered.forEach(function (item, index) {
                 orderedCol.getItem(index).should.equal(item);

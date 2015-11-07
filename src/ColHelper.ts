@@ -1,7 +1,6 @@
-
 module ColJs {
 
-export class ColHelper {
+    export class ColHelper {
 
         static maxBy<T>(source:T[], selector:(item:T) => number):T {
 
@@ -42,6 +41,23 @@ export class ColHelper {
             }
             return results;
         }
+
+        static intersect<T>(first:T[], second:T[]):T[] {
+
+            var result:T[] = [];
+
+            for (var f = 0; f < first.length; f++) {
+                for (var s = 0; s < second.length; s++) {
+                    if (first[f] == second[s]) {
+                        result.push(first[f]);
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
 
         static where<T>(source:T[], fn:(item:T) => boolean):T[] {
             var results:T[] = [];
@@ -112,4 +128,5 @@ export class ColHelper {
 
             return array;
         }
-    }}
+    }
+}
