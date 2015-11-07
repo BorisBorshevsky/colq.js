@@ -1,3 +1,4 @@
+
 module ColJs {
 
     export class MapHelper {
@@ -12,11 +13,11 @@ module ColJs {
             return pairs;
         }
 
-        static ofHashString<T>(source:string, pairSeperator:string, keyValSeperator:string, valueTransform:(value:string) => T):ColMap<T> {
+        static ofHashString<T>(source:string, pairSeparator:string, keyValSeparator:string, valueTransform:(value:string) => T):ColMap<T> {
 
-            var pairsStringCol = Col.of(source.split(pairSeperator));
+            var pairsStringCol = Col.of(source.split(pairSeparator));
             var hashCol = pairsStringCol.select(pairString => {
-                var pair = pairString.split(keyValSeperator);
+                var pair = pairString.split(keyValSeparator);
                 var key = pair[0];
                 var rawVal = pair[1];
                 var val = valueTransform(rawVal);
@@ -36,7 +37,7 @@ module ColJs {
                 var key = keySelector(item);
 
                 if (!(key in group)) {
-                    ordered.push({key: key, value: []})
+                    ordered.push({key: key, value: []});
                     group[key] = ordered.length - 1;
                 }
 

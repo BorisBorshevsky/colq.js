@@ -1,5 +1,4 @@
-///<reference path="./MapHelper.ts" />
-///<reference path="./Col.ts" />
+///<reference path="./Components.ts" />
 
 module ColJs{
 

@@ -1,4 +1,4 @@
-///<reference path="./ColHelper.ts" />
+///<reference path="./Components.ts" />
 
 module ColJs {
 
@@ -39,7 +39,7 @@ module ColJs {
         //reverse -- Inverts the order of the elements in a sequence.
         //multiOrderBy -- order by multiple comparators
         //selectTopAndCloseEnough -- select the top element and a group of elements that are close to him (some threshold)
-        //normalize(selector:(item:E) => number, setter:(item:E, value:number)=> void, min:number = 0, max:number = 1)
+        //// normalize(selector:(item:E) => number, setter:(item:E, value:number)=> void, min:number = 0, max:number = 1)
     }
 
 
@@ -204,8 +204,7 @@ module ColJs {
 
 
         groupBy(keySelector:(item:E)=>string):ColMap<E[]> {
-            var groupedHash = MapHelper.orderedGroupByString(this.source, keySelector);
-            return groupedHash;
+            return MapHelper.orderedGroupByString(this.source, keySelector);
         }
 
         selectMany<R>(selector:(item:E) => R[]):Col<R> {
