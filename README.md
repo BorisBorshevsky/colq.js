@@ -1,4 +1,4 @@
-# Array Query Library
+# colq.js
 A Typecript \ Javascript library inspired by linq, for an easy, typed and self explanatory use on Arrays and Maps in typescript and javascript.
 the library provides a set of general purpose wrappers for these collections that make any complex collection; queryable, editable and easy to manipulate.
 the library is compatible with any JS engine (client and server).
